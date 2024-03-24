@@ -53,9 +53,10 @@ public:
 	}
 };
 
-class LinearRegression {
+class LinearRegression 
+{
 	//Attributes
-	double a0, a1, correlation;
+	double a0, a1, r;
 
 public:
 	//Constructor
@@ -77,7 +78,7 @@ public:
 
 		//coefficients
 		if (denominator == 0)
-			this->a1 = this->a0 = 0;
+			throw std::invalid_argument("invalid point array");
 		else
 		{
 			this->a1 = ((n * xy) - (xn * yn)) / denominator;
@@ -86,15 +87,15 @@ public:
 
 		denominator = sqrt((n * x2) - pow(xn, 2)) * sqrt((n * y2) - pow(yn, 2));
 		if (denominator == 0)
-			this->correlation = 0;
+			this->r = 0;
 		else 
-			this->correlation = ((n * xy) - (xn * yn)) / denominator;
+			this->r = ((n * xy) - (xn * yn)) / denominator;
 	}
 
 	//Getters
 	double getIntercept() { return a0; }
 	double getSlope() { return a1; }
-	double getCorrelation() { return correlation; }
+	double getCorrelation() { return r; }
 
 	//Methods
 	double predict(double x) { return a0 + a1 * x; }
@@ -112,6 +113,15 @@ int main()
 	};
 
 	int n = sizeof(p_arr) / sizeof(Point);
-	LinearRegression result(n, p_arr);
-	std::cout << "a1: " << result.getSlope() << "\na0: " << result.getIntercept() << "\nR: " << result.getCorrelation();
+
+	try 
+	{
+		LinearRegression result(n, p_arr);
+		std::cout << "a1: " << result.getSlope() << "\na0: " << result.getIntercept() << "\nR: " << result.getCorrelation();
+	}
+	catch (std::invalid_argument exc)
+	{
+		std::cout << exc.what();
+	}
+	
 }
