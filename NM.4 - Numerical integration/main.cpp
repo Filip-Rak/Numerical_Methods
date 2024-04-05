@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 double rectangleRule(double (*f)(double), double a, double b, int n)
 {
