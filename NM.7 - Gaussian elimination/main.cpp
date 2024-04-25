@@ -1,8 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <iomanip>
+#include <cmath>
 
-void print_matrix(double** matrix, int size, std::string delimiter = ", ")
+void print_matrix(double** matrix, int size, std::string delimiter = "\t")
 {
     for (int i = 0; i < size; i++)
     {
@@ -21,17 +23,9 @@ double* gaussian_elimination(double** matrix, int size)
         for (int i = k + 1; i < size; i++)
         {
             double m = matrix[i][k] / matrix[k][k];
-            std::cout << "CALL:" << i << "\n";
 
             for (int j = k; j < size + 1; j++)
-            {
-                std::cout << "TOP: " << matrix[k][j] << "\n";
-                std::cout << "BOTTOM:" << matrix[i][j] << "\n";
-                std::cout << "M: " << m << "\n";
-                std::cout << "--------------\n";
-
                 matrix[i][j] -= matrix[k][j] * m;
-            }
         }
 
         k++;
@@ -45,7 +39,6 @@ double* gaussian_elimination(double** matrix, int size)
             sum -= matrix[i][j] * results[j];
 
         results[i] = sum / matrix[i][i];
-        std::cout << results[i] << "\n";
     }
 
     return results;
@@ -55,10 +48,7 @@ double** loadFromFile(std::string filename, int* sizeOUT)
 {
     std::fstream file(filename, std::ios::in);
     if (!file.is_open()) 
-    {
-        std::cerr << "Failed to open file." << std::endl;
         return nullptr;
-    }
 
     // Get the number of rows
     *sizeOUT = 0;
@@ -87,22 +77,31 @@ double** loadFromFile(std::string filename, int* sizeOUT)
 
 int main()
 {
+    // Input handling
 	int size;
-	double* b_arr = nullptr;
-	double** matrix = loadFromFile("input/a.txt", &size);
+	double** matrix = loadFromFile("input/b.txt", &size);
 
-    std::cout << "ORIGINAL:\n";
+    if (!matrix)
+    {
+        std::cout << "Failed to open file\n";
+        return 0;
+    }
+
+    // Setting precision and displaying input
+
+    std::cout << std::setprecision(2);
+    std::cout << "Input matrix:\n";
     print_matrix(matrix, size);
-    std::cout << "\n\n";
 
+    // Actual algorithm
     double* results = gaussian_elimination(matrix, size);
 
-    std::cout << "\n\n";
-    std::cout << "NEW:\n";
+    // Printing the matrix after function's work
+    std::cout << "\nMatrix after function call:\n";
     print_matrix(matrix, size);
 
-
-    std::cout << "\n\nRESULTS: \n";
+    // Printing the results
+    std::cout << "\nResults: \n";
     for (int i = 0; i < size; i++)
         std::cout << results[i] << "\n";
 
@@ -111,6 +110,5 @@ int main()
 		delete[] matrix[i];
 
 	delete[] matrix;
-	delete[] b_arr;
 	delete[] results;
 }
