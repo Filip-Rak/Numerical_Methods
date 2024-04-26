@@ -79,7 +79,7 @@ int main()
 {
     // Input handling
 	int size;
-	double** matrix = loadFromFile("input/b.txt", &size);
+	double** matrix = loadFromFile("input/20x20.txt", &size);
 
     if (!matrix)
     {
@@ -88,7 +88,6 @@ int main()
     }
 
     // Setting precision and displaying input
-
     std::cout << std::setprecision(2);
     std::cout << "Input matrix:\n";
     print_matrix(matrix, size);
