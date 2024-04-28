@@ -3,6 +3,7 @@
 #include <string>
 #include <iomanip>
 #include <cmath>
+#include <chrono>
 
 void print_matrix(double** matrix, int size, std::string delimiter = "\t")
 {
@@ -79,7 +80,7 @@ int main()
 {
     // Input handling
 	int size;
-	double** matrix = loadFromFile("input/20x20.txt", &size);
+	double** matrix = loadFromFile("input/4096x4096.txt", &size);
 
     if (!matrix)
     {
@@ -88,21 +89,27 @@ int main()
     }
 
     // Setting precision and displaying input
-    std::cout << std::setprecision(2);
-    std::cout << "Input matrix:\n";
-    print_matrix(matrix, size);
+    //std::cout << std::setprecision(2);
+    //std::cout << "Input matrix:\n";
+    //print_matrix(matrix, size);
 
-    // Actual algorithm
+    // Time measurment for the algorithm
+    auto start = std::chrono::high_resolution_clock::now();
     double* results = gaussian_elimination(matrix, size);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
     // Printing the matrix after function's work
-    std::cout << "\nMatrix after function call:\n";
-    print_matrix(matrix, size);
+    //std::cout << "\nMatrix after function call:\n";
+    //print_matrix(matrix, size);
 
     // Printing the results
     std::cout << "\nResults: \n";
     for (int i = 0; i < size; i++)
-        std::cout << results[i] << "\n";
+        std::cout << results[i] << " ";
+
+    // Printing the duration
+    std::cout << "\nExecution time (microseconds): " << duration.count() << "\n";
 
 	// Delete arrays
 	for (int i = 0; i < size; i++)
