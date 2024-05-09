@@ -129,7 +129,6 @@ int max_in_row(double* arr, int size, int begin = 0)
 
 void switch_rows(double** matrix, int a, int b, int size)
 {
-    // Simply replace pointers
     double* buffer = matrix[a];
     matrix[a] = matrix[b];
     matrix[b] = buffer;
@@ -198,7 +197,7 @@ void method_execution(double* (*function)(double**, int), double** matrix, int s
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
     // Printing the matrix after function's work
-    //print_matrix(matrix, size, "After function call matrix");
+    //print_matrix(matrix, size, "\t", "After function call matrix");
 
     // Printing the results
     std::cout << "\nResults: \n";
