@@ -12,7 +12,7 @@ typedef double* (*EliminationFunction)(double**, int);
 void print_matrix(double** matrix, int size, std::string delimiter = "\t", std::string name = "Matrix")
 {
     std::cout << name << "\n";
-    
+
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size + 1; j++)
@@ -53,10 +53,10 @@ double** loadFromFile(std::string filename, int* sizeOUT)
     return matrix;
 }
 
-double** copy_matrix(double** source, int size) 
+double** copy_matrix(double** source, int size)
 {
     double** copy = new double* [size];
-    for (int i = 0; i < size; i++) 
+    for (int i = 0; i < size; i++)
     {
         copy[i] = new double[size + 1]; // Plus one for the augmented column
         for (int j = 0; j < size + 1; j++)
@@ -156,7 +156,7 @@ double* gaussian_elimination(double** matrix, int size)
 
 double* gaussian_elimination_column_pivot(double** matrix, int size)
 {
-    for(int k = 0; k <= size; k++)
+    for (int k = 0; k <= size; k++)
     {
         // Column switching
         int max_index = max_in_row(matrix[k], size, k);
@@ -196,15 +196,14 @@ void method_execution(double* (*function)(double**, int), double** matrix, int s
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
-    // Printing the matrix after function's work
-    //print_matrix(matrix, size, "\t", "After function call matrix");
+    // Result printing
+    std::cout << "----------------------";
+    //print_matrix(matrix, size, "\t", "After function call matrix: ");
 
-    // Printing the results
     std::cout << "\nResults: \n";
     for (int i = 0; i < size; i++)
         std::cout << results[i] << " ";
 
-    // Printing the duration
     std::cout << "\nExecution time (microseconds): " << duration.count() << "\n";
 
     // Clear results 
@@ -233,7 +232,7 @@ int main()
         gaussian_elimination_column_pivot,
         gaussian_elimination_row_pivot
     };
-    
+
     // Execute the algorithms
     for (int i = 0; i < sizeof(functions) / sizeof(EliminationFunction); i++)
     {
