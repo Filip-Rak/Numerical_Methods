@@ -123,18 +123,17 @@ int max_in_row(double* arr, int size, int begin = 0)
         if (abs(arr[i]) > abs(arr[max]))
             max = i;
     }
-
     return max;
 }
 
-void switch_rows(double** matrix, int a, int b, int size)
+void switch_rows(double** matrix, int a, int b)
 {
     double* buffer = matrix[a];
     matrix[a] = matrix[b];
     matrix[b] = buffer;
 }
 
-void switch_columns(double** matrix, int a, int b, int size)
+void switch_columns(double** matrix, int a, int b, int size, int* order)
 {
     for (int i = 0; i < size; i++)
     {
@@ -142,13 +141,17 @@ void switch_columns(double** matrix, int a, int b, int size)
         matrix[i][a] = matrix[i][b];
         matrix[i][b] = buffer;
     }
+
+    int temp = order[a];
+    order[a] = order[b];
+    order[b] = temp;
 }
 
 // ----------------------------
 // Main Gaussian Elimination Routines
 double* gaussian_elimination(double** matrix, int size)
 {
-    for (int k = 0; k <= size; k++)
+    for (int k = 0; k < size; k++)
         elimination(matrix, size, k);
 
     return reverse_substitution(matrix, size);
@@ -156,25 +159,42 @@ double* gaussian_elimination(double** matrix, int size)
 
 double* gaussian_elimination_column_pivot(double** matrix, int size)
 {
-    for (int k = 0; k <= size; k++)
+    // Array follwoing the order of permutations
+    int* order = new int[size];
+    for (int i = 0; i < size; i++)
+        order[i] = i;
+
+    for (int k = 0; k < size; k++)
     {
-        // Column switching
         int max_index = max_in_row(matrix[k], size, k);
-        switch_columns(matrix, k, max_index, size);
+
+        if(max_index != k)
+            switch_columns(matrix, k, max_index, size, order);
 
         elimination(matrix, size, k);
     }
 
-    return reverse_substitution(matrix, size);
+    double* raw_results = reverse_substitution(matrix, size);
+    double* ordered_results = new double[size]; 
+
+    // Restoration of the initial order
+    for (int i = 0; i < size; i++)
+        ordered_results[order[i]] = raw_results[i];
+
+    delete[] raw_results;
+    delete[] order;
+
+    return ordered_results;
 }
 
 double* gaussian_elimination_row_pivot(double** matrix, int size)
 {
-    for (int k = 0; k <= size; k++)
+    for (int k = 0; k < size; k++)
     {
-        // Rows switching
         int max_index = max_in_column(matrix, size, k, k);
-        switch_rows(matrix, k, max_index, size);
+
+        if(max_index != k)
+            switch_rows(matrix, k, max_index);
 
         elimination(matrix, size, k);
     }
@@ -223,14 +243,14 @@ int main()
     }
 
     // Set input precision
-    //std::cout << std::setprecision(2);
+    std::cout << std::setprecision(2);
     print_matrix(matrix, size, "\t", "Input Matrix");
 
     // Array of algorithms
     EliminationFunction functions[] = {
         gaussian_elimination,
+        gaussian_elimination_row_pivot,
         gaussian_elimination_column_pivot,
-        gaussian_elimination_row_pivot
     };
 
     // Execute the algorithms
