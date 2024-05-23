@@ -1,6 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
+
+// ----------------------------
+// Custom types
+
+using Method = void (*)(double** A, double**& L, double**& U, int size);
 
 // ----------------------------
 // Matrix / Array Utility Functions
@@ -131,7 +137,7 @@ void elimination(double** U, double** L, int size, int k)
         double m = U[i][k] / U[k][k];
         L[i][k] = m;
 
-        // Update the elements of the current row in the U matrix
+        // Update the elements of the current row in U matrix
         for (int j = k; j < size; j++)
             U[i][j] -= m * U[k][j];
     }
@@ -220,39 +226,72 @@ void cholesky_decomposition(double** A, double**& L, double**& U, int size)
     transpose_square_matrix(U, size);
 }
 
+// ----------------------------
+// Execution Functions 
+
+void run_decomposition(Method method, double** matrix, double* vector, int size)
+{
+    // Time measurment for decomposition
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // Decomposition method execution
+    double** L_matrix = nullptr;
+    double** U_matrix = nullptr;
+    method(matrix, L_matrix, U_matrix, size);
+
+    // Time measurement finalization
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+
+    // Result calculations
+    double* y_arr = forward_substitution(L_matrix, vector, size);
+    double* x_arr = reverse_substitution(U_matrix, y_arr, size);
+
+    // Prints
+    std::cout << "--------------------------------------";
+
+    // Debug prints
+    //print_matrix(L_matrix, size, "\nL Matrix: ");
+    //print_matrix(U_matrix, size, "\nU Matrix: ");
+    //print_array(y_arr, size, "\nY Vector: ");
+
+    // Result prints
+    print_array(x_arr, size, "\nX Vector: ");
+    std::cout << "Decomposition time: " << duration.count() << "\n";
+
+    // Cleanup
+    delete_matrix(L_matrix, size);
+    delete_matrix(U_matrix, size);
+    delete_array(y_arr);
+}
 
 int main()
 {
+    // Input handling
     int size = 0;
     double** matrix = nullptr;
     double* vector = nullptr;
-    if (!load_matrix_and_extension(matrix, vector, "input/4x4.txt", &size))
+    if (!load_matrix_and_extension(matrix, vector, "input/3x3.txt", &size))
     {
         std::cout << "Loading Failed!";
         return -1;
     }
 
-    double** L_matrix = nullptr;
-    double** U_matrix = nullptr;
-    LU_decomposition(matrix, L_matrix, U_matrix, size);
+    // Print of the input
+    print_matrix(matrix, size, "Input Matrix: ");
+    print_array(vector, size, "Input Vector: ");
 
-    double* y_arr = forward_substitution(L_matrix, vector, size);
-    double* x_arr = reverse_substitution(U_matrix, y_arr, size);
+    // Array of decomposition methods
+    Method methods[] = {
+        LU_decomposition,
+        cholesky_decomposition
+    };
 
-
-    print_matrix(matrix, size);
-    print_array(vector, size);
-    print_matrix(L_matrix, size, "\nL");
-    print_matrix(U_matrix, size, "\nU");
-
-    print_array(y_arr, size, "\nY");
-    print_array(x_arr, size, "\nX");
-
+    // Decomposition method execution
+    for (Method method : methods)
+        run_decomposition(method, matrix, vector, size);
 
     // Cleanup
     delete_matrix(matrix, size);
-    delete_matrix(L_matrix, size);
-    delete_matrix(U_matrix, size);
     delete_array(vector);
-    delete_array(y_arr);
 }
