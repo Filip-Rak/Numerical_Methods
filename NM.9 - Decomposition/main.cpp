@@ -63,6 +63,15 @@ bool load_matrix_and_extension(double**& A, double*& B, std::string filename, in
     return true;
 }
 
+void transpose_square_matrix(double** matrix, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = i + 1; j < size; j++)
+            std::swap(matrix[i][j], matrix[j][i]);
+    }
+}
+
 double** copy_matrix(double** source, int size)
 {
     double** copy = new double* [size];
@@ -75,17 +84,24 @@ double** copy_matrix(double** source, int size)
     return copy;
 }
 
-double** identity_matrix(int size)
+double** create_matrix(int size)
 {
-    double** matrix = new double*[size];
+    double** matrix = new double* [size];
     for (int i = 0; i < size; i++)
     {
         matrix[i] = new double[size];
         for (int j = 0; j < size; j++)
             matrix[i][j] = 0;
-
-        matrix[i][i] = 1;
     }
+
+    return matrix;
+}
+
+double** identity_matrix(int size)
+{
+    double** matrix = create_matrix(size);
+    for (int i = 0; i < size; i++)
+        matrix[i][i] = 1;
 
     return matrix;
 }
@@ -166,13 +182,51 @@ void LU_decomposition(double** A, double**& L, double**& U, int size)
         elimination(U, L, size, k);
 }
 
+void cholesky_decomposition(double** A, double**& L, double**& U, int size) 
+{
+    // Allocate memory for the lower triangular matrix L
+    L = create_matrix(size);
+
+    // Perform the Cholesky decomposition for L matrix
+    for (int i = 0; i < size; i++) 
+    {
+        for (int j = 0; j <= i; j++) 
+        {
+            double sum = 0;
+
+            // Diagonal elements
+            if (j == i)
+            { 
+                for (int k = 0; k < j; k++) 
+                    sum += L[j][k] * L[j][k];
+
+                double diag = A[j][j] - sum;
+                L[j][j] = sqrt(diag);
+            }
+
+            // Off-diagonal elements
+            else 
+            {
+                for (int k = 0; k < j; k++) 
+                    sum += L[i][k] * L[j][k];
+
+                L[i][j] = (A[i][j] - sum) / L[j][j];
+            }
+        }
+    }
+
+    // U matrix is transpose of L
+    U = copy_matrix(L, size);
+    transpose_square_matrix(U, size);
+}
+
 
 int main()
 {
     int size = 0;
     double** matrix = nullptr;
     double* vector = nullptr;
-    if (!load_matrix_and_extension(matrix, vector, "input/3x3.txt", &size))
+    if (!load_matrix_and_extension(matrix, vector, "input/4x4.txt", &size))
     {
         std::cout << "Loading Failed!";
         return -1;
@@ -182,12 +236,14 @@ int main()
     double** U_matrix = nullptr;
     LU_decomposition(matrix, L_matrix, U_matrix, size);
 
-    print_matrix(matrix, size);
-    print_matrix(L_matrix, size, "\nL");
-    print_matrix(U_matrix, size, "\nU");
-
     double* y_arr = forward_substitution(L_matrix, vector, size);
     double* x_arr = reverse_substitution(U_matrix, y_arr, size);
+
+
+    print_matrix(matrix, size);
+    print_array(vector, size);
+    print_matrix(L_matrix, size, "\nL");
+    print_matrix(U_matrix, size, "\nU");
 
     print_array(y_arr, size, "\nY");
     print_array(x_arr, size, "\nX");
