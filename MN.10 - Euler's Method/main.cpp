@@ -2,10 +2,10 @@
 #include <vector>
 
 // Custom types
-using function = double (*)(double, double);
+using Derivative = double (*)(double, double);
 
 // Main routine
-std::vector<double> euler_method(double x0, double y0, double h, double xn, function f)
+std::vector<double> euler_method(double x0, double y0, double h, double xn, Derivative f)
 {
 	// Result array initialization
 	std::vector<double> results;
@@ -31,7 +31,7 @@ std::vector<double> euler_method(double x0, double y0, double h, double xn, func
 }
 
 // Custom derivative
-double derivative(double x, double y)
+double function(double x, double y)
 {
 	return y;
 }
@@ -45,7 +45,7 @@ int main()
 	double xn = 0.4;
 
 	// Function call
-	std::vector<double> results  = euler_method(0, 1, 0.1, 0.4, derivative);
+	std::vector<double> results  = euler_method(0, 1, 0.1, 0.4, function);
 
 	// Argument print
 	for (double result : results)
