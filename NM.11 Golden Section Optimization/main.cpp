@@ -7,14 +7,14 @@ const double PHI = 0.61803398875;
 
 double goldenSectionSearch(double a, double b, double (*f)(double), double epsilon) 
 {
-    // Initilization for search range
+    // Initialization for search range
     double x_l = b - PHI * (b - a);
     double x_p = a + PHI * (b - a);
 
     // Search loop
     while ((b - a) > epsilon) 
     {
-        // Min on rigth
+        // Min on right
         if (f(x_l) > f(x_p)) 
         {
             a = x_l;
@@ -42,9 +42,9 @@ double function(double x)
 
 int main()
 {
-    double a = 0.0;
-    double b = M_PI * 2;
-    double epsilon = 0.0001;
+    double a = 0;
+    double b = 2 * M_PI;
+    double epsilon = 1e-10;
 
-    std::cout << goldenSectionSearch(a, b, function, epsilon) << "\n";
+    std::cout << "x = " << goldenSectionSearch(a, b, function, epsilon) << "\n";
 }
